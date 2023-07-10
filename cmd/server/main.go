@@ -11,11 +11,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/mandrigin/gin-spa/spa"
 )
 
-// go:embed cmd/server/crop.exe
-// go:embed all:cmd/server/poppler-23.07.0/Library/bin
-// go:embed all:dist/spa
+// go:embed crop.exe
+// go:embed all:poppler-23.07.0/Library/bin
+// go:embed spa
 
 var logger = log.Default()
 
@@ -51,6 +52,8 @@ func main() {
 		c.Writer.WriteHeader(http.StatusOK)
 		c.Writer.Write(imageData)
 		})
+
+	r.Use(spa.Middleware("/", "./spa"))
 	r.Run()
 
 }
