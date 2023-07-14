@@ -5,7 +5,7 @@
         class="q-pa-none"
         v-for="horse in horses"
         :key="horse.title"
-        @vnode-mounted="renderAll()"
+        @vue:mounted="renderAll()"
       >
       </q-item>
     </q-list>

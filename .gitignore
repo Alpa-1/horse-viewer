@@ -3,6 +3,7 @@
 node_modules
 
 poppler*
+.yarn
 
 # Quasar core related directories
 .quasar

@@ -1,9 +1,9 @@
 {
-  "name": "lydia-robot-runner",
+  "name": "horse-viewer",
   "version": "0.0.1",
-  "description": "Interface for the Robot Test runs",
-  "productName": "Lydia-Robot-Runner",
-  "author": "EPG\\MIC <michael.siegle@epg.com>",
+  "description": "",
+  "productName": "Horse Viewer",
+  "author": "michael.a.siegle@gmail.com",
   "private": true,
   "scripts": {
     "lint": "eslint --ext .js,.ts,.vue ./",
