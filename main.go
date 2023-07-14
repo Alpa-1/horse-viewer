@@ -26,7 +26,7 @@ func main() {
 	logger.Println("Starting server on port 8080")
 
 	r := gin.Default()
-
+  port := os.Getenv("PORT")
   r.Use(static.Serve("/", static.LocalFile("./dist/spa", true)))
 
 	r.OPTIONS("/fetch", func(c *gin.Context){
@@ -57,7 +57,7 @@ func main() {
 		c.Writer.WriteHeader(http.StatusOK)
 		c.Writer.Write(imageData)
 		})
-	r.Run()
+	r.Run(":"+port)
 
 }
 
