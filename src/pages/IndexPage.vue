@@ -66,7 +66,6 @@ export default defineComponent({
   components: { HorseViewer },
   data() {
     return {
-      port: '8080',
       horses: [] as Horse[],
       newBreed: '',
       colors: ['red', 'blue', 'green', 'orange', 'purple', 'pink'],
@@ -194,7 +193,7 @@ export default defineComponent({
         });
         return;
       }
-      fetch(`https://${location.hostname}:${this.port}/fetch`, {
+      fetch(`https://${location.hostname}/fetch`, {
         method: 'POST',
         headers: {
           'Access-Control-Allow-Origin': '*', // Required for CORS support to work,
@@ -251,14 +250,6 @@ export default defineComponent({
           console.log('error', error);
         });
     },
-  },
-  mounted() {
-    if (process.env.PORT === undefined) {
-      this.port = '8080';
-      return;
-    } else {
-      this.port = process.env.PORT;
-    }
   },
 });
 </script>

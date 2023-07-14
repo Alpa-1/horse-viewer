@@ -2,7 +2,7 @@
   <q-layout view="hHh Lpr lFf">
     <q-header elevated>
       <q-toolbar class="q-pl-xl">
-        <q-toolbar-title color="accent"> Horse Viewer </q-toolbar-title>
+        <q-toolbar-title color="accent"> Report Analyzer </q-toolbar-title>
       </q-toolbar>
     </q-header>
 

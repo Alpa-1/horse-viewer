@@ -20,10 +20,18 @@ import (
 // go:embed all:dist/spa
 var StaticFiles embed.FS
 
-var logger = log.Default()
+
 
 func main() {
-	logger.Println("Starting server on port 8080")
+  file, err := os.OpenFile("logfile.txt", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+  if err != nil {
+    log.Fatal(err)
+  }
+  defer file.Close()
+
+  log.SetOutput(file)
+
+  log.Println("Starting server")
 
 	r := gin.Default()
   port := os.Getenv("PORT")
@@ -49,7 +57,7 @@ func main() {
 
 		b, err := ioutil.ReadAll(c.Request.Body)
 		if err != nil {
-			logger.Println("Error: ", err.Error())
+			log.Println("Error: ", err.Error())
 			return
 		}
 		imageData := crop(string(b))
@@ -69,12 +77,12 @@ func main() {
 func crop(url string) []byte{
 	b := get(url)
 	if b == nil {
-		logger.Println("Error: ", "Could not get PDF")
+		log.Println("Error: ", "Could not get PDF")
 		return nil
 	}
 	id, err := uuid.NewUUID()
 	if err != nil {
-		logger.Println("Error: ", "Could not generate UUID")
+		log.Println("Error: ", "Could not generate UUID")
 		return nil
 	}
 
@@ -82,29 +90,29 @@ func crop(url string) []byte{
 	var tempImageName string = "output_image-" + id.String() + ".png"
 	err = os.WriteFile(tempfileName, b, 0644)
 	if err != nil {
-		logger.Println("Error: ", "Could not save PDF")
+		log.Println("Error: ", "Could not save PDF")
 		return nil
 	}
-	logger.Println("Saved PDF")
+	log.Println("Saved PDF")
 	defer os.Remove(tempfileName)
 
 	cwd, err := os.Getwd()
 	if err != nil {
-		logger.Println("Error: ", "Could not get working directory")
+		log.Println("Error: ", "Could not get working directory")
 		return nil
 	}
 
 	cmd := exec.Command(filepath.Join(cwd, "crop.exe"), tempfileName, tempImageName)
 	err = cmd.Run()
 	if err != nil {
-		logger.Println("Error: ", "Could not crop PDF")
-		logger.Println(err.Error())
+		log.Println("Error: ", "Could not crop PDF")
+		log.Println(err.Error())
 		return nil
 	}
 
 	readImage, err := ioutil.ReadFile(tempImageName)
 	if err != nil {
-		logger.Println("Error: ", "Could not read image")
+		log.Println("Error: ", "Could not read image")
 		return nil
 	}
 	defer os.Remove(tempImageName)
@@ -115,13 +123,13 @@ func crop(url string) []byte{
 func get(url string) []byte{
 	resp, err := http.Get(url)
 	if err != nil {
-		logger.Println(err.Error())
+		log.Println(err.Error())
 		return nil
 	}
-	logger.Println(resp)
+	log.Println(resp)
 	b, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		logger.Println(err.Error())
+		log.Println(err.Error())
 		return nil
 	}
 
