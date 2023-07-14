@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -9,6 +10,7 @@ import (
 	"path/filepath"
 	"strconv"
 
+	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -16,6 +18,7 @@ import (
 // go:embed cmd/server/crop.exe
 // go:embed all:cmd/server/poppler-23.07.0/Library/bin
 // go:embed all:dist/spa
+var StaticFiles embed.FS
 
 var logger = log.Default()
 
@@ -23,6 +26,9 @@ func main() {
 	logger.Println("Starting server on port 8080")
 
 	r := gin.Default()
+
+  r.Use(static.Serve("/", static.LocalFile("./dist/spa", true)))
+
 	r.OPTIONS("/fetch", func(c *gin.Context){
 		c.Header("Access-Control-Allow-Origin", "http://localhost:9000")
 		c.Header("Access-Control-Allow-Methods", "OPTIONS, POST")
@@ -39,7 +45,7 @@ func main() {
 		b, err := ioutil.ReadAll(c.Request.Body)
 		if err != nil {
 			logger.Println("Error: ", err.Error())
-			return 
+			return
 		}
 		imageData := crop(string(b))
 		if imageData == nil {
