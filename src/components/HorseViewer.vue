@@ -1,6 +1,13 @@
 <template>
-  <q-page class="row">
-    <q-list>
+  <q-page class="row justify-center items-center">
+    <div v-if="horses.length === 0">
+      <h3 class="title" style="color: #041e29">
+        Unleash the Champions: <br />Explore and Compare Photo Finish Breeding
+        Reports!
+      </h3>
+      <h5 style="color: #041e29">Please paste a report PDF link</h5>
+    </div>
+    <q-list v-if="horses.length !== 0">
       <q-item
         class="q-pa-none"
         v-for="horse in horses"
@@ -33,13 +40,12 @@ export default defineComponent({
     return {
       canvas: null as HTMLCanvasElement | null,
       ctx: null as CanvasRenderingContext2D | null,
-      colors: ['red', 'blue', 'green', 'orange', 'purple', 'pink'],
       images: [] as Horse[],
     };
   },
   methods: {
     renderAll: function () {
-      console.log('rendering all images.');
+      // console.log('rendering all images.');
       if (this.canvas === null || this.ctx === null) {
         console.log('canvas or ctx is null.');
         return;
@@ -78,11 +84,11 @@ export default defineComponent({
       var height = img.bitmap.height * scale;
       var width = img.bitmap.width * scale;
 
-      console.log('scale: ', scale, ' height: ', height, ' width: ', width);
+      // console.log('scale: ', scale, ' height: ', height, ' width: ', width);
       img.canvas.height = height;
       img.canvas.width = width;
 
-      console.log('drawing image: ', img.id);
+      // console.log('drawing image: ', img.id);
       img.ctx.save();
       img.ctx.globalAlpha = 0.6;
       img.ctx.drawImage(
@@ -100,7 +106,7 @@ export default defineComponent({
       img.ctx.globalAlpha = img.opacity;
       img.ctx.globalCompositeOperation = 'source-atop';
       img.ctx.fillStyle = img.color; // Replace with desired color
-      img.ctx.fillRect(0, 70, img.canvas.width, img.canvas.height - 70);
+      img.ctx.fillRect(0, 100, img.canvas.width, img.canvas.height - 100);
       img.ctx.restore();
     },
     removeWhite: function (img: Horse) {
@@ -125,7 +131,7 @@ export default defineComponent({
           pixels[i + 3] = 0;
         }
       }
-      console.log('removed white pixels: ', cnt);
+      // console.log('removed white pixels: ', cnt);
       // Put the modified pixel data back to the temporary canvas
       img.ctx.putImageData(imageData, 0, 0);
       return img;

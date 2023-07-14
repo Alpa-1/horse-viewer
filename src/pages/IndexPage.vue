@@ -1,11 +1,5 @@
 <template>
-  <q-drawer
-    v-model="open"
-    behavior="desktop"
-    persistent
-    bordered
-    style="background-color: secondary"
-  >
+  <q-drawer v-model="open" behavior="desktop" persistent bordered style="">
     <q-list v-for="horse in horses" :key="horse.id">
       <q-item class="q-pb-md">
         <q-item-section>
@@ -15,11 +9,13 @@
               :color="horse.color"
               icon="fa-solid fa-eye"
               label="Show"
+              outlined
               @click="show(horse)"
             ></q-btn>
             <q-btn
               :color="horse.color"
               icon="delete"
+              outlined
               label="Remove"
               @click="removeHorse(horse.id)"
             ></q-btn>
@@ -30,17 +26,23 @@
     <q-item>
       <q-item-section>
         <q-input
+          :disable="horses.length === 6"
           v-model="newBreed"
+          class="q-pt-sm"
           outlined
-          label="Add Graph"
+          label="Add PDF"
+          label-color="accent"
           debounce="300"
           @update:model-value="process(newBreed)"
         ></q-input>
         <q-btn
           class="q-mt-sm"
-          color="primary"
+          text-color="accent"
+          color="secondary"
+          outlined
           icon="download"
           label="Download Graph"
+          label-color="accent"
           @click="download"
           :disable="horses.length === 0"
         >
@@ -48,7 +50,7 @@
       </q-item-section>
     </q-item>
   </q-drawer>
-  <q-page class="row">
+  <q-page class="row" style="background-color: whitesmoke">
     <horse-viewer :horses="horses" />
   </q-page>
 </template>
@@ -67,7 +69,7 @@ export default defineComponent({
       port: '8080',
       horses: [] as Horse[],
       newBreed: '',
-      colors: ['red', 'blue', 'green', 'yellow', 'orange', 'purple', 'pink'],
+      colors: ['red', 'blue', 'green', 'orange', 'purple', 'pink'],
       currId: 0,
       exists: false,
     };
@@ -192,7 +194,7 @@ export default defineComponent({
         });
         return;
       }
-      fetch(`https://${location.hostname}:${this.port}/fetch`, {
+      fetch(`http://${location.hostname}:${this.port}/fetch`, {
         method: 'POST',
         headers: {
           'Access-Control-Allow-Origin': '*', // Required for CORS support to work,
