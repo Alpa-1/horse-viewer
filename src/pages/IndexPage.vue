@@ -186,7 +186,7 @@ export default defineComponent({
         });
         return;
       }
-      fetch(`http://localhost:${this.port}/fetch`, {
+      fetch(`${location.host}:${this.port}/fetch`, {
         method: 'POST',
         headers: {
           'Access-Control-Allow-Origin': '*', // Required for CORS support to work,
