@@ -27,6 +27,9 @@ func main() {
 
 	r := gin.Default()
   port := os.Getenv("PORT")
+  if port == "" {
+    port = "8080"
+  }
   r.Use(static.Serve("/", static.LocalFile("./dist/spa", true)))
 
 	r.OPTIONS("/fetch", func(c *gin.Context){

@@ -1,5 +1,11 @@
 <template>
-  <q-drawer v-model="open" behavior="desktop" persistent bordered>
+  <q-drawer
+    v-model="open"
+    behavior="desktop"
+    persistent
+    bordered
+    style="background-color: secondary"
+  >
     <q-list v-for="horse in horses" :key="horse.id">
       <q-item class="q-pb-md">
         <q-item-section>
@@ -186,7 +192,7 @@ export default defineComponent({
         });
         return;
       }
-      fetch(`${location.host}:${this.port}/fetch`, {
+      fetch(`https://${location.hostname}:${this.port}/fetch`, {
         method: 'POST',
         headers: {
           'Access-Control-Allow-Origin': '*', // Required for CORS support to work,
