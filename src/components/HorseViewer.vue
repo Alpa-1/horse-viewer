@@ -33,7 +33,7 @@ export default defineComponent({
     return {
       canvas: null as HTMLCanvasElement | null,
       ctx: null as CanvasRenderingContext2D | null,
-      colors: ['red', 'blue', 'green', 'yellow', 'orange', 'purple', 'pink'],
+      colors: ['red', 'blue', 'green', 'orange', 'purple', 'pink'],
       images: [] as Horse[],
     };
   },
@@ -152,8 +152,6 @@ export default defineComponent({
     },
   },
   mounted() {
-    console.log('mounted horse viewer');
-
     this.canvas = document.getElementById('canvas') as HTMLCanvasElement;
     this.ctx = this.canvas.getContext('2d');
     if (this.ctx === null) {
@@ -164,7 +162,6 @@ export default defineComponent({
     this.renderAll();
   },
   updated() {
-    console.log('updated horse viewer');
     this.renderAll();
   },
 });

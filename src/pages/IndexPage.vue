@@ -176,6 +176,15 @@ export default defineComponent({
         return;
       }
       url = url.trim();
+      if (this.horses.length === 6) {
+        this.newBreed = '';
+        this.$q.notify({
+          message: 'Maximum number of breeds reached.',
+          color: 'red',
+          icon: 'report_problem',
+        });
+        return;
+      }
       fetch('http://localhost:8080/fetch', {
         method: 'POST',
         headers: {
