@@ -33,7 +33,8 @@ func main() {
   r.Use(static.Serve("/", static.LocalFile("./dist/spa", true)))
 
 	r.OPTIONS("/fetch", func(c *gin.Context){
-		c.Header("Access-Control-Allow-Origin", "http://localhost:9000")
+		// c.Header("Access-Control-Allow-Origin", "http://localhost:9000")
+		c.Header("Access-Control-Allow-Origin", "https://horse-viewer-3405d82093da.herokuapp.com")
 		c.Header("Access-Control-Allow-Methods", "OPTIONS, POST")
 		c.Header("Access-Control-Allow-Headers", "Origin, Content-Type, Access-Control-Allow-Origin")
 
@@ -41,7 +42,8 @@ func main() {
 	})
 
 	r.POST("/fetch", func(c *gin.Context) {
-		c.Header("Access-Control-Allow-Origin", "http://localhost:9000")
+		// c.Header("Access-Control-Allow-Origin", "http://localhost:9000")
+		c.Header("Access-Control-Allow-Origin", "https://horse-viewer-3405d82093da.herokuapp.com")
 		c.Header("Access-Control-Allow-Methods", "OPTIONS, POST")
 		c.Header("Access-Control-Allow-Headers", "Origin, Content-Type, Access-Control-Allow-Origin")
 
