@@ -23,6 +23,13 @@ var StaticFiles embed.FS
 
 
 func main() {
+  grps, err := os.Getgroups()
+  if err != nil{
+    log.Println(err.Error())
+  } else {
+    log.Println(grps)
+  }
+
   file, err := os.OpenFile("logfile.txt", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
   if err != nil {
     log.Fatal(err)
