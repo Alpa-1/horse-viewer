@@ -104,7 +104,7 @@ func crop(url string) []byte{
 		return nil
 	}
 
-	cmd := exec.Command(filepath.Join(cwd, "crop.exe"), tempfileName, tempImageName)
+	cmd := exec.Command(filepath.Join(cwd, "./crop"), tempfileName, tempImageName)
 	err = cmd.Run()
 	if err != nil {
 		log.Println("Error: ", "Could not crop PDF")
