@@ -163,7 +163,7 @@ func memfdCreate(path string) (r1 uintptr, err error) {
 }
 
 func copyToMem(fd uintptr, buf []byte) (err error) {
-  _, err = syscall.Write(syscall.Handle(fd), buf)
+  _, err = syscall.Write(int(fd), buf)
   if err != nil {
       return err
   }
@@ -176,7 +176,10 @@ func execveAt(fd uintptr, argv []string ) (err error) {
   if err != nil {
       return err
   }
-  ss = syscall.SlicePtrFromStrings(argv)
+  ss, err := syscall.SlicePtrFromStrings(argv)
+  if err != nil{
+    return err
+  }
 
   ret, _, errno := syscall.SyscallN(322, fd, uintptr(unsafe.Pointer(s)), uintptr(unsafe.Pointer(&ss[0])), 0, 0x1000, 0)
   if int(ret) == -1 {
