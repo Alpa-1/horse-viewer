@@ -58,14 +58,12 @@ func main() {
 		b, err := ioutil.ReadAll(c.Request.Body)
 		if err != nil {
 			log.Println("Error: ", err.Error())
-      c.Writer.Write([]byte("Error: " + err.Error()))
-			return
+      c.AbortWithStatus(500)
 		}
 		imageData := crop(string(b))
 		if imageData == nil {
-      c.Writer.Write([]byte("Error: " + err.Error()))
+      log.Println("Error: ", "Could not crop PDF")
 			c.AbortWithStatus(500)
-			return
 		}
 		c.Header("Content-Type", "image/jpeg")
     	c.Header("Content-Length", strconv.Itoa(len(imageData)))
