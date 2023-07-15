@@ -58,10 +58,12 @@ func main() {
 		b, err := ioutil.ReadAll(c.Request.Body)
 		if err != nil {
 			log.Println("Error: ", err.Error())
+      c.Writer.Write([]byte("Error: " + err.Error()))
 			return
 		}
 		imageData := crop(string(b))
 		if imageData == nil {
+      c.Writer.Write([]byte("Error: " + err.Error()))
 			c.AbortWithStatus(500)
 			return
 		}
