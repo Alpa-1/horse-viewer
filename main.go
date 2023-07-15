@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"os/user"
 	"path/filepath"
 	"strconv"
 
@@ -23,11 +24,17 @@ var StaticFiles embed.FS
 
 
 func main() {
-  grps, err := os.Getgroups()
+  usr, err := user.Current()
   if err != nil{
     log.Println(err.Error())
   } else {
-    log.Println(grps)
+    grps, err := usr.GroupIds()
+    if err != nil {
+      log.Println(err.Error())
+    } else {
+      log.Println("User: ", usr.Username)
+      log.Println("Groups: ", grps)
+    }
   }
 
   file, err := os.OpenFile("logfile.txt", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
