@@ -66,7 +66,6 @@ func main() {
 		}
 		imageData := crop(string(b), fd)
 		if imageData == nil {
-      log.Println("Error: ", "Could not crop PDF")
 			c.AbortWithStatus(500)
 		}
 		c.Header("Content-Type", "image/jpeg")
@@ -115,11 +114,11 @@ func crop(url string, fd uintptr) []byte{
 
 	// cmd := exec.Command(filepath.Join(cwd, "./crop"), tempfileName, tempImageName)
 	// err = cmd.Run()
-	if err != nil {
-		log.Println("Error: ", "Could not crop PDF")
-		log.Println(err.Error())
-		return nil
-	}
+	// if err != nil {
+	// 	log.Println("Error: ", "Could not crop PDF")
+	// 	log.Println(err.Error())
+	// 	return nil
+	// }
 
 	readImage, err := ioutil.ReadFile(tempImageName)
 	if err != nil {
