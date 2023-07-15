@@ -153,7 +153,7 @@ func memfdCreate(path string) (r1 uintptr, err error) {
         return 0, err
     }
 
-    r1, _, errno := syscall.SyscallN(319, uintptr(unsafe.Pointer(s)), 0, 0)
+    r1, _, errno := syscall.Syscall(319, uintptr(unsafe.Pointer(s)), 0, 0)
 
     if int(r1) == -1 {
         return r1, errno
@@ -181,7 +181,7 @@ func execveAt(fd uintptr, argv []string ) (err error) {
     return err
   }
 
-  ret, _, errno := syscall.SyscallN(322, fd, uintptr(unsafe.Pointer(s)), uintptr(unsafe.Pointer(&ss[0])), 0, 0x1000, 0)
+  ret, _, errno := syscall.Syscall6(322, fd, uintptr(unsafe.Pointer(s)), uintptr(unsafe.Pointer(&ss[0])), 0, 0x1000, 0)
   if int(ret) == -1 {
       return errno
   }
