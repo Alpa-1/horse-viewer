@@ -29,7 +29,7 @@ func main() {
   }
   defer file.Close()
 
-  log.SetOutput(file)
+  log.SetOutput(os.Stdout)
 
   log.Println("Starting server")
 
