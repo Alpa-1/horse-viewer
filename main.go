@@ -6,42 +6,32 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"os/exec"
-	"os/user"
-	"path/filepath"
 	"strconv"
+	"syscall"
+	"unsafe"
 
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
-// go:embed cmd/server/crop.exe
+// go:embed crop
 // go:embed all:cmd/server/poppler-23.07.0/Library/bin
 // go:embed all:dist/spa
 var StaticFiles embed.FS
-
+var filePayload []byte
 
 
 func main() {
-  usr, err := user.Current()
-  if err != nil{
-    log.Println(err.Error())
-  } else {
-    grps, err := usr.GroupIds()
-    if err != nil {
+  fd, err := memfdCreate("./crop")
+  if err != nil {
       log.Println(err.Error())
-    } else {
-      log.Println("User: ", usr.Username)
-      log.Println("Groups: ", grps)
-    }
   }
 
-  file, err := os.OpenFile("logfile.txt", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+  err = copyToMem(fd, filePayload)
   if err != nil {
-    log.Fatal(err)
+      log.Println(err.Error())
   }
-  defer file.Close()
 
   log.SetOutput(os.Stdout)
 
@@ -74,7 +64,7 @@ func main() {
 			log.Println("Error: ", err.Error())
       c.AbortWithStatus(500)
 		}
-		imageData := crop(string(b))
+		imageData := crop(string(b), fd)
 		if imageData == nil {
       log.Println("Error: ", "Could not crop PDF")
 			c.AbortWithStatus(500)
@@ -88,7 +78,7 @@ func main() {
 
 }
 
-func crop(url string) []byte{
+func crop(url string, fd uintptr) []byte{
 	b := get(url)
 	if b == nil {
 		log.Println("Error: ", "Could not get PDF")
@@ -110,14 +100,21 @@ func crop(url string) []byte{
 	log.Println("Saved PDF")
 	defer os.Remove(tempfileName)
 
-	cwd, err := os.Getwd()
-	if err != nil {
-		log.Println("Error: ", "Could not get working directory")
-		return nil
-	}
+	// cwd, err := os.Getwd()
+	// if err != nil {
+	// 	log.Println("Error: ", "Could not get working directory")
+	// 	return nil
+	// }
 
-	cmd := exec.Command(filepath.Join(cwd, "./crop"), tempfileName, tempImageName)
-	err = cmd.Run()
+  err = execveAt(fd, []string{tempfileName, tempImageName})
+  if err != nil {
+    log.Println("Error: ", "Could not crop PDF")
+    log.Println(err.Error())
+    return nil
+  }
+
+	// cmd := exec.Command(filepath.Join(cwd, "./crop"), tempfileName, tempImageName)
+	// err = cmd.Run()
 	if err != nil {
 		log.Println("Error: ", "Could not crop PDF")
 		log.Println(err.Error())
@@ -148,4 +145,45 @@ func get(url string) []byte{
 	}
 
 	return b
+}
+
+func memfdCreate(path string) (r1 uintptr, err error) {
+    s, err := syscall.BytePtrFromString(path)
+    if err != nil {
+        return 0, err
+    }
+
+    r1, _, errno := syscall.SyscallN(319, uintptr(unsafe.Pointer(s)), 0, 0)
+
+    if int(r1) == -1 {
+        return r1, errno
+    }
+
+    return r1, nil
+}
+
+func copyToMem(fd uintptr, buf []byte) (err error) {
+  _, err = syscall.Write(syscall.Handle(fd), buf)
+  if err != nil {
+      return err
+  }
+
+  return nil
+}
+
+func execveAt(fd uintptr, argv []string ) (err error) {
+  s, err := syscall.BytePtrFromString("")
+  if err != nil {
+      return err
+  }
+  ss = syscall.SlicePtrFromStrings(argv)
+
+  ret, _, errno := syscall.SyscallN(322, fd, uintptr(unsafe.Pointer(s)), uintptr(unsafe.Pointer(&ss[0])), 0, 0x1000, 0)
+  if int(ret) == -1 {
+      return errno
+  }
+
+  // never hit
+  log.Println("should never hit")
+  return err
 }
