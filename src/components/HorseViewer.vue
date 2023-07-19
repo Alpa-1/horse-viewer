@@ -16,7 +16,7 @@
       >
       </q-item>
     </q-list>
-    <canvas id="canvas" :width="1500" :height="1000"></canvas>
+    <canvas id="canvas" :width="width" :height="height"></canvas>
   </q-page>
 </template>
 
@@ -26,8 +26,8 @@ import { Horse } from './models';
 
 export default defineComponent({
   setup() {
-    const width = 1500;
-    const height = 1000;
+    const width = 1220;
+    const height = 700;
     return { width, height };
   },
   props: {
@@ -57,6 +57,7 @@ export default defineComponent({
           console.log('breed is undefined.');
           return;
         }
+
         this.render(breed);
       });
       this.horses.forEach((breed) => {
@@ -106,7 +107,7 @@ export default defineComponent({
       img.ctx.globalAlpha = img.opacity;
       img.ctx.globalCompositeOperation = 'source-atop';
       img.ctx.fillStyle = img.color; // Replace with desired color
-      img.ctx.fillRect(0, 100, img.canvas.width, img.canvas.height - 100);
+      img.ctx.fillRect(0, 55, img.canvas.width, img.canvas.height - 55);
       img.ctx.restore();
     },
     removeWhite: function (img: Horse) {

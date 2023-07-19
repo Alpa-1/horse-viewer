@@ -49,6 +49,14 @@
         </q-btn>
       </q-item-section>
     </q-item>
+    <q-item>
+      <div class="q-pr-md text-body2">Opacity</div>
+      <q-slider
+        color="accent"
+        v-model="lowOpacity"
+        @change="updateOpacity(lowOpacity)"
+      ></q-slider>
+    </q-item>
   </q-drawer>
   <q-page class="row" style="background-color: whitesmoke">
     <horse-viewer :horses="horses" />
@@ -59,8 +67,11 @@
 import HorseViewer from 'components/HorseViewer.vue';
 import { defineComponent, ref } from 'vue';
 import { Horse } from 'components/models';
-const regex = /((\w+%\d+)+x(%\d+\w+%\d+)+)Breeding/;
+import { exportFile } from 'quasar';
 
+const regex = /((\w+%\d+)+x(%\d+(\w+%\d+)+))Breeding/;
+const APIfetch = `https://${location.hostname}/fetch`;
+// const APIfetch = `http://${location.hostname}:3000/fetch`;
 export default defineComponent({
   name: 'IndexPage',
   components: { HorseViewer },
@@ -68,20 +79,73 @@ export default defineComponent({
     return {
       horses: [] as Horse[],
       newBreed: '',
-      colors: ['red', 'blue', 'green', 'orange', 'purple', 'pink'],
+      colors: [
+        { color: 'red', used: false },
+        { color: 'blue', used: false },
+        { color: 'green', used: false },
+        { color: 'orange', used: false },
+        { color: 'purple', used: false },
+      ],
       currId: 0,
       exists: false,
+      currHighlighted: null as Horse | null,
+      prevOpacity: this.lowOpacity,
     };
   },
   setup() {
-    const width = 1500;
-    const height = 1000;
+    const width = 1220;
+    const height = 700;
     const defaultOpacity = 0.5;
-    return { open: ref(true), width, height, defaultOpacity };
+    const lowOpacity = 0.2;
+    const highOpacity = 1;
+    return {
+      open: ref(true),
+      width,
+      height,
+      defaultOpacity,
+      lowOpacity,
+      highOpacity,
+    };
   },
   methods: {
     download: function () {
       console.log('Downloading graph.');
+      const canvas = document.getElementById('canvas') as HTMLCanvasElement;
+      var exportCanvas = document.createElement('canvas');
+      var exportContext = exportCanvas.getContext('2d');
+      if (exportContext === null || canvas === null) {
+        this.$q.notify({
+          message: 'Download failed.',
+          color: 'red',
+          icon: 'report_problem',
+        });
+        return;
+      }
+      exportCanvas.width = canvas.width;
+      exportCanvas.height = canvas.height;
+      exportContext.fillStyle = 'white';
+      exportContext.fillRect(0, 0, canvas.width, canvas.height);
+      exportContext.drawImage(canvas, 0, 0);
+      exportCanvas.toBlob((blob) => {
+        if (blob === null) {
+          this.$q.notify({
+            message: 'Download failed.',
+            color: 'red',
+            icon: 'report_problem',
+          });
+          return;
+        }
+        const status = exportFile('Graph.png', blob, {
+          mimeType: 'image/png',
+        });
+
+        if (status === true) {
+          // browser allowed it
+        } else {
+          // browser denied it
+          console.log('Error: ' + status);
+        }
+      });
     },
     show: function (horse: Horse) {
       console.log('showing horse: ', horse.id);
@@ -96,42 +160,50 @@ export default defineComponent({
     },
     highlight: function (horse: Horse) {
       console.log('highlighting horse: ', horse.id);
+      this.currHighlighted = horse;
       var previous = this.horses;
 
       previous.forEach((breed) => {
         breed.ctx.clearRect(0, 0, this.width, this.height);
         if (breed.id === horse.id) {
-          breed.opacity = 1;
+          breed.opacity = this.highOpacity;
         } else {
-          breed.opacity = 0.2;
+          breed.opacity = this.lowOpacity;
         }
       });
       this.horses = [];
+      this.addHorse(
+        horse.id,
+        horse.bitmap,
+        horse.title,
+        horse.url,
+        horse.color,
+        horse.opacity
+      );
       previous.forEach((breed) => {
+        if (breed.id === horse.id) {
+          return;
+        }
         this.addHorse(
           breed.id,
           breed.bitmap,
           breed.title,
           breed.url,
+          breed.color,
           breed.opacity
         );
       });
-      // this.addHorse(
-      //   horse.id,
-      //   horse.bitmap,
-      //   horse.title,
-      //   horse.url,
-      //   horse.opacity
-      // );
     },
     addHorse: function (
       id: number,
       bitmap: ImageBitmap,
       title: string,
       url: string,
+      color?: string,
       opacity?: number
     ) {
       console.log('Adding image with id: ', id, '.');
+      console.log('Color: ', color);
       if (opacity === undefined) {
         opacity = this.defaultOpacity;
       } else {
@@ -169,13 +241,22 @@ export default defineComponent({
         ctx: ctx,
         bitmap: bitmap,
         url: url,
-        color: this.colors[id],
+        color: color ? color : this.unusedColor(),
         title: title,
       });
       this.newBreed = '';
     },
     removeHorse: function (id: number) {
       console.log('Removing image with id: ', id, '.');
+      this.horses.forEach((horse) => {
+        if (horse.id === id) {
+          this.colors.forEach((color) => {
+            if (color.color === horse.color) {
+              color.used = false;
+            }
+          });
+        }
+      });
       this.horses = this.horses.filter((horse) => horse.id !== id);
     },
     process: function (url: string) {
@@ -184,16 +265,16 @@ export default defineComponent({
         return;
       }
       url = url.trim();
-      if (this.horses.length === 6) {
+      if (this.horses.length === 5) {
         this.newBreed = '';
         this.$q.notify({
-          message: 'Maximum number of breeds reached.',
+          message: 'Maximum number of graphs reached.',
           color: 'red',
           icon: 'report_problem',
         });
         return;
       }
-      fetch(`https://${location.hostname}/fetch`, {
+      fetch(APIfetch, {
         method: 'POST',
         headers: {
           'Access-Control-Allow-Origin': '*', // Required for CORS support to work,
@@ -249,6 +330,27 @@ export default defineComponent({
         .catch((error) => {
           console.log('error', error);
         });
+    },
+    unusedColor: function () {
+      let curColor = 'gray';
+      this.colors.forEach((color) => {
+        if (curColor !== 'gray') {
+          return;
+        }
+        if (color.used === false) {
+          color.used = true;
+          curColor = color.color;
+        }
+      });
+      console.log('curColor: ', curColor);
+      return curColor;
+    },
+    updateOpacity: function (value: number) {
+      this.lowOpacity = value / 100;
+      console.log('Updated opacity to: ', this.lowOpacity);
+      if (this.currHighlighted !== null) {
+        this.highlight(this.currHighlighted);
+      }
     },
   },
 });
