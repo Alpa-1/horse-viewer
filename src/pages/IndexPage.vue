@@ -69,9 +69,9 @@ import { defineComponent, ref } from 'vue';
 import { Horse } from 'components/models';
 import { exportFile } from 'quasar';
 
-const regex = /((\w+%\d+)+x(%\d+(\w+%\d+)+))Breeding/;
+const regex = /((.*%\d+)x(%\d+.*))Breeding/;
 const APIfetch = `https://${location.hostname}/fetch`;
-// const APIfetch = `http://${location.hostname}:3000/fetch`;
+// const APIfetch = `http://${location.hostname}:8080/fetch`;
 export default defineComponent({
   name: 'IndexPage',
   components: { HorseViewer },
@@ -296,7 +296,7 @@ export default defineComponent({
               data.byteLength,
               ' bytes. '
             );
-            var names = url.match(regex);
+            var names = url.split('/').at(-1).match(regex);
             var title = 'Breed ' + this.currId.toString();
 
             if (names !== null) {
